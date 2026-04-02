@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: booking-service
+  config:
+    import: optional:configserver:http://localhost:8888
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
+    spring:
+      jpa:
+        properties:
+          hibernate:
+            jdbc:
+              time_zone: UTC

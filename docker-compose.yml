@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+
+  # PostgreSQL
+  postgres:
+    image: postgres:15
+    container_name: stayease-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: tushar
+      PGTZ: UTC
+      TZ: UTC
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+
+  # Redis
+  redis:
+    image: redis:7
+    container_name: stayease-redis
+    ports:
+      - "6379:6379"
+
+  # Zookeeper
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: stayease-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  # Kafka
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: stayease-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  # Zipkin
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: stayease-zipkin
+    ports:
+      - "9411:9411"
+
+volumes:
+  postgres_data:
